@@ -2,15 +2,22 @@ services:
   api:
     build: ./api
     ports:
-      - "8001:8000"
+      - "8000:8000"
     depends_on:
       - db
       - redis
     volumes:
       - ./api:/app
+  
+  worker:
+    build: ./worker
+    volumes:
+      - ./worker/models:/inference/models
+    depends_on:
+      - redis
 
   db:
-    image:  mysql:8.0
+    image:  mysql:8.4
     environment:
       MYSQL_ROOT_PASSWORD: password  
       MYSQL_DATABASE: app_db
@@ -19,15 +26,10 @@ services:
     volumes:
       - local_db:/var/lib/mysql
 
-  worker:
-    build: ./worker
-    volumes:
-      - ./worker:/app
-    depends_on:
-      - redis
-
   redis:
     image: redis:8
+    ports:
+      - "6379:6379"
 
 volumes:
   local_db:
